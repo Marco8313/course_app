@@ -1,0 +1,16 @@
+{
+  "name": "course_app",
+  "version": "1.0.0",
+  "description": "A new Flutter project.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "deploy": "gh-pages -d build/web"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
