@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +20,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Page d'accueil avec choix de calculateur
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -27,7 +27,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bienvenue dans le Calculateur Fitness'),
+        title: const Text(
+            'Bienvenue dans l\'application de l\'athlète du quotidien'),
       ),
       body: Center(
         child: Column(
@@ -61,7 +62,6 @@ class HomePage extends StatelessWidget {
   }
 }
 
-// Page du calculateur de course
 class RunningCalculatorPage extends StatefulWidget {
   const RunningCalculatorPage({super.key});
 
@@ -76,7 +76,9 @@ class _RunningCalculatorPageState extends State<RunningCalculatorPage> {
   double vitesseconvertie = 0;
 
   void _convertirVitesseEnAllure() {
-    final double vitesse = double.tryParse(_vitesseController.text) ?? 0;
+    // Remplace les virgules par des points
+    final double vitesse =
+        double.tryParse(_vitesseController.text.replaceAll(',', '.')) ?? 0;
     if (vitesse > 0) {
       final double allureDecimale = 60 / vitesse;
       final int minutes = allureDecimale.floor();
@@ -93,7 +95,9 @@ class _RunningCalculatorPageState extends State<RunningCalculatorPage> {
   }
 
   void _convertirAllureEnVitesse() {
-    final double allure = double.tryParse(_allureController.text) ?? 0;
+    // Remplace les virgules par des points
+    final double allure =
+        double.tryParse(_allureController.text.replaceAll(',', '.')) ?? 0;
     if (allure > 0) {
       final double allureDecimale = allure;
       final int minutes = allureDecimale.floor();
@@ -154,7 +158,8 @@ class _RunningCalculatorPageState extends State<RunningCalculatorPage> {
       appBar: AppBar(
         title: const Text('Calculateur de Course'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        // Ajout d'un SingleChildScrollView
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -203,7 +208,6 @@ class _RunningCalculatorPageState extends State<RunningCalculatorPage> {
   }
 }
 
-// Page du calculateur CrossFit
 class CrossFitCalculatorPage extends StatefulWidget {
   const CrossFitCalculatorPage({super.key});
 
@@ -213,100 +217,210 @@ class CrossFitCalculatorPage extends StatefulWidget {
 
 class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
   final TextEditingController _oneRepMaxController = TextEditingController();
+  String _selectedTrainingType = 'Renforcement';
+  String _selectedTime = '10 minutes';
+  String _selectedLevel = 'Débutant';
   String _suggestions = "";
-  List<String> _weightTable = [];
+  double? _oneRepMax;
+  Map<String, double> _percentageTable = {};
 
-  void _calculateSuggestions() {
-    final double oneRepMax = double.tryParse(_oneRepMaxController.text) ?? 0;
+  final Random _random = Random();
 
-    if (oneRepMax > 0) {
-      final Map<String, Map<String, dynamic>> suggestions = {
-        "Renforcement": {"reps": "12-15", "series": "2-3", "percentage": 0.65},
-        "Hypertrophie": {"reps": "8-12", "series": "3-4", "percentage": 0.75},
-        "Force": {"reps": "3-5", "series": "4-6", "percentage": 0.85},
-        "Puissance": {"reps": "1-3", "series": "3-5", "percentage": 0.95},
-      };
-
-      String results = "";
-
-      suggestions.forEach((type, values) {
-        final double percentage = values["percentage"] as double;
-        final double suggestedWeight = oneRepMax * percentage;
-        final int percentInt =
-            (percentage * 100).toInt(); // Convertir en entier
-        results +=
-            "$type:\n Poids: ${suggestedWeight.toStringAsFixed(1)} kg (${percentInt}% de 1RM), Répétitions: ${values["reps"]}, Séries: ${values["series"]}\n\n";
-      });
-
-      _generateWeightTable(oneRepMax);
-
+  void _generateWorkout() {
+    if (_oneRepMax == null) {
       setState(() {
-        _suggestions = results;
+        _suggestions = "Veuillez entrer votre 1RM.";
       });
-    } else {
-      setState(() {
-        _suggestions = "Veuillez entrer un 1RM valide.";
-        _weightTable = [];
-      });
+      return;
     }
+
+    String workout = "";
+
+    if (_selectedTrainingType == 'Renforcement') {
+      workout = _generateStrengthWorkout(_selectedTime, _selectedLevel);
+    } else if (_selectedTrainingType == 'Hypertrophie') {
+      workout = _generateHypertrophyWorkout(_selectedTime, _selectedLevel);
+    } else if (_selectedTrainingType == 'Force') {
+      workout = _generatePowerWorkout(_selectedTime, _selectedLevel);
+    } else if (_selectedTrainingType == 'Puissance') {
+      workout = _generateEnduranceWorkout(_selectedTime, _selectedLevel);
+    }
+
+    setState(() {
+      _suggestions = workout;
+    });
   }
 
-  void _generateWeightTable(double oneRepMax) {
-    List<String> table = [];
-    for (int i = 30; i <= 110; i += 5) {
-      double weight = oneRepMax * (i / 100);
-      table.add("$i% de 1RM: ${weight.toStringAsFixed(1)} kg");
-    }
-    setState(() {
-      _weightTable = table;
-    });
+  void _calculatePercentages() {
+    if (_oneRepMax == null) return;
+
+    _percentageTable = {
+      '30%': _oneRepMax! * 0.30,
+      '35%': _oneRepMax! * 0.35,
+      '40%': _oneRepMax! * 0.40,
+      '45%': _oneRepMax! * 0.45,
+      '50%': _oneRepMax! * 0.50,
+      '55%': _oneRepMax! * 0.55,
+      '60%': _oneRepMax! * 0.60,
+      '65%': _oneRepMax! * 0.65,
+      '70%': _oneRepMax! * 0.70,
+      '75%': _oneRepMax! * 0.75,
+      '80%': _oneRepMax! * 0.80,
+      '85%': _oneRepMax! * 0.85,
+      '90%': _oneRepMax! * 0.90,
+      '95%': _oneRepMax! * 0.95,
+      '100%': _oneRepMax!,
+      '105%': _oneRepMax! * 1.05,
+      '110%': _oneRepMax! * 1.10,
+    };
+  }
+
+  String _generateStrengthWorkout(String time, String level) {
+    List<String> workouts = [
+      "5 rounds: 5x Deadlifts à 60% 1RM, 10x Push-ups",
+      "4 rounds: 8x Back Squats à 65% 1RM, 8x Pull-ups",
+      "5 rounds: 10x Deadlifts à 70% 1RM, 10x Barbell Rows",
+      "6 rounds: 12x Front Squats à 65% 1RM, 12x Bench Press"
+    ];
+
+    return workouts[_random.nextInt(workouts.length)];
+  }
+
+  String _generateHypertrophyWorkout(String time, String level) {
+    List<String> workouts = [
+      "4 rounds: 12x Bench Press à 60% 1RM, 15x Dumbbell Flyes",
+      "5 rounds: 10x Squats à 65% 1RM, 12x Lunges",
+      "4 rounds: 8x Deadlifts à 70% 1RM, 10x Leg Press",
+      "5 rounds: 10x Barbell Rows à 65% 1RM, 12x Overhead Press"
+    ];
+
+    return workouts[_random.nextInt(workouts.length)];
+  }
+
+  String _generatePowerWorkout(String time, String level) {
+    List<String> workouts = [
+      "5 rounds: 8x Push Press à 60% 1RM, 10x Box Jumps",
+      "4 rounds: 5x Power Cleans à 65% 1RM, 8x Broad Jumps",
+      "5 rounds: 6x Push Jerk à 70% 1RM, 10x Med Ball Slams",
+      "6 rounds: 4x Clean and Jerk à 75% 1RM, 10x Weighted Box Jumps"
+    ];
+
+    return workouts[_random.nextInt(workouts.length)];
+  }
+
+  String _generateEnduranceWorkout(String time, String level) {
+    List<String> workouts = [
+      "AMRAP 10: 10x Air Squats, 15x Sit-ups, 10x Burpees",
+      "AMRAP 20: 20x Kettlebell Swings, 15x Box Jumps, 20x Wall Balls",
+      "AMRAP 30: 30x Double-Unders, 20x Sit-ups, 15x Pull-ups",
+      "AMRAP 45: 40x Push-ups, 30x Air Squats, 20x Deadlifts à 50% 1RM"
+    ];
+
+    return workouts[_random.nextInt(workouts.length)];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calculateur CrossFit'),
+        title: const Text('Calculateur de CrossFit'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             TextField(
               controller: _oneRepMaxController,
               decoration: const InputDecoration(
-                labelText: 'Entrez votre 1RM (kg)',
+                labelText: "Entrez votre 1RM (kg)",
               ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                setState(() {
+                  _oneRepMax = double.tryParse(value);
+                  _calculatePercentages();
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            const Text("Tableau des pourcentages de 1RM :"),
+            if (_oneRepMax != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _percentageTable.entries.map((entry) {
+                  return Text(
+                      '${entry.key}: ${entry.value.toStringAsFixed(1)} kg');
+                }).toList(),
+              ),
+            const SizedBox(height: 20),
+            const Text("Sélectionnez le type d'entraînement :"),
+            DropdownButton<String>(
+              value: _selectedTrainingType,
+              items: <String>[
+                'Renforcement',
+                'Hypertrophie',
+                'Force',
+                'Puissance'
+              ].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedTrainingType = newValue!;
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            const Text("Sélectionnez la durée de l'entraînement :"),
+            DropdownButton<String>(
+              value: _selectedTime,
+              items: <String>[
+                '10 minutes',
+                '20 minutes',
+                '30 minutes',
+                '45 minutes'
+              ].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedTime = newValue!;
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            const Text("Sélectionnez le niveau :"),
+            DropdownButton<String>(
+              value: _selectedLevel,
+              items:
+                  <String>['Débutant', 'Avancé', 'Expert'].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedLevel = newValue!;
+                });
+              },
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _calculateSuggestions,
-              child: const Text('Calculer les suggestions'),
+              onPressed: _generateWorkout,
+              child: const Text("Générer la séance"),
             ),
             const SizedBox(height: 20),
             Text(
               _suggestions,
               style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Tableau des pourcentages de poids :',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _weightTable.length,
-                itemBuilder: (context, index) {
-                  return Text(
-                    _weightTable[index],
-                    style: const TextStyle(fontSize: 16),
-                  );
-                },
-              ),
             ),
           ],
         ),
