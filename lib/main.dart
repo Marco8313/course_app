@@ -322,109 +322,120 @@ class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calculateur de CrossFit'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _oneRepMaxController,
-              decoration: const InputDecoration(
-                labelText: "Entrez votre 1RM (kg)",
-              ),
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                setState(() {
-                  _oneRepMax = double.tryParse(value);
-                  _calculatePercentages();
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            const Text("Tableau des pourcentages de 1RM :"),
-            if (_oneRepMax != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _percentageTable.entries.map((entry) {
-                  return Text(
-                      '${entry.key}: ${entry.value.toStringAsFixed(1)} kg');
-                }).toList(),
-              ),
-            const SizedBox(height: 20),
-            const Text("Sélectionnez le type d'entraînement :"),
-            DropdownButton<String>(
-              value: _selectedTrainingType,
-              items: <String>[
-                'Renforcement',
-                'Hypertrophie',
-                'Force',
-                'Puissance'
-              ].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedTrainingType = newValue!;
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            const Text("Sélectionnez la durée de l'entraînement :"),
-            DropdownButton<String>(
-              value: _selectedTime,
-              items: <String>[
-                '10 minutes',
-                '20 minutes',
-                '30 minutes',
-                '45 minutes'
-              ].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedTime = newValue!;
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            const Text("Sélectionnez le niveau :"),
-            DropdownButton<String>(
-              value: _selectedLevel,
-              items:
-                  <String>['Débutant', 'Avancé', 'Expert'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedLevel = newValue!;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _generateWorkout,
-              child: const Text("Générer la séance"),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              _suggestions,
-              style: const TextStyle(fontSize: 16),
-            ),
-          ],
+        appBar: AppBar(
+          title: const Text('Calculateur de CrossFit'),
         ),
-      ),
-    );
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _oneRepMaxController,
+                  decoration: const InputDecoration(
+                    labelText: "Entrez votre 1RM (kg)",
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      _oneRepMax = double.tryParse(value);
+                      _calculatePercentages();
+                    });
+                  },
+                ),
+                const SizedBox(height: 10),
+                const Text("Tableau des pourcentages de 1RM :"),
+                if (_oneRepMax != null)
+                  GridView.count(
+                    shrinkWrap:
+                        true, // Permet au GridView d'être contenu dans le ScrollView
+                    physics:
+                        const NeverScrollableScrollPhysics(), // Empêche le GridView de défiler indépendamment
+                    crossAxisCount: 3, // Définit 3 colonnes
+                    childAspectRatio: 10, // Ajuste la hauteur des cellules
+                    children: _percentageTable.entries.map((entry) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Text(
+                          '${entry.key}: ${entry.value.toStringAsFixed(1)} kg',
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                const SizedBox(height: 20),
+                const Text("Sélectionnez le type d'entraînement :"),
+                DropdownButton<String>(
+                  value: _selectedTrainingType,
+                  items: <String>[
+                    'Renforcement',
+                    'Hypertrophie',
+                    'Force',
+                    'Puissance'
+                  ].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedTrainingType = newValue!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 10),
+                const Text("Sélectionnez la durée de l'entraînement :"),
+                DropdownButton<String>(
+                  value: _selectedTime,
+                  items: <String>[
+                    '10 minutes',
+                    '20 minutes',
+                    '30 minutes',
+                    '45 minutes'
+                  ].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedTime = newValue!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 10),
+                const Text("Sélectionnez le niveau :"),
+                DropdownButton<String>(
+                  value: _selectedLevel,
+                  items: <String>['Débutant', 'Avancé', 'Expert']
+                      .map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedLevel = newValue!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _generateWorkout,
+                  child: const Text("Générer la séance"),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  _suggestions,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 }
