@@ -27,8 +27,13 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-            'Bienvenue dans l\'application de l\'athlète du quotidien'),
+        title: const Center(
+          // Utilisation du Center pour centrer le texte
+          child: Text(
+            'Bienvenue dans l\'application\nde l\'athlète du quotidien',
+            textAlign: TextAlign.center, // Centre le texte dans le widget Text
+          ),
+        ),
       ),
       body: Center(
         child: Column(
@@ -142,7 +147,7 @@ class _RunningCalculatorPageState extends State<RunningCalculatorPage> {
         final int secondes = ((allureDecimale - minutes) * 60).round();
 
         results +=
-            '${(percentage * 100).toStringAsFixed(0)}% Vitesse: ${vitessePercentage.toStringAsFixed(1)} km/h - ${(percentage * 100).toStringAsFixed(0)}% Allure: $minutes min $secondes s par km\n';
+            '${(percentage * 100).toStringAsFixed(0)}% V: ${vitessePercentage.toStringAsFixed(1)} km/h - A: $minutes min $secondes s par km\n';
       }
 
       setState(() {
@@ -217,225 +222,383 @@ class CrossFitCalculatorPage extends StatefulWidget {
 
 class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
   final TextEditingController _oneRepMaxController = TextEditingController();
+  double? _oneRepMax;
+  Map<String, double> _percentageTable = {};
   String _selectedTrainingType = 'Renforcement';
   String _selectedTime = '10 minutes';
   String _selectedLevel = 'Débutant';
+  List<String> _selectedEquipment = [];
   String _suggestions = "";
-  double? _oneRepMax;
-  Map<String, double> _percentageTable = {};
 
-  final Random _random = Random();
+  // List of available equipment options
+  final List<String> _equipmentOptions = [
+    'Rameur',
+    'Wall Ball',
+    'Kettlebell',
+    'Dumbbell',
+    'Barre de traction',
+    'Corde à sauter',
+    'Banc de musculation',
+    'Plyo Box'
+  ];
 
-  void _generateWorkout() {
-    if (_oneRepMax == null) {
-      setState(() {
-        _suggestions = "Veuillez entrer votre 1RM.";
-      });
-      return;
-    }
-
-    String workout = "";
-
-    if (_selectedTrainingType == 'Renforcement') {
-      workout = _generateStrengthWorkout(_selectedTime, _selectedLevel);
-    } else if (_selectedTrainingType == 'Hypertrophie') {
-      workout = _generateHypertrophyWorkout(_selectedTime, _selectedLevel);
-    } else if (_selectedTrainingType == 'Force') {
-      workout = _generatePowerWorkout(_selectedTime, _selectedLevel);
-    } else if (_selectedTrainingType == 'Puissance') {
-      workout = _generateEnduranceWorkout(_selectedTime, _selectedLevel);
-    }
-
-    setState(() {
-      _suggestions = workout;
-    });
-  }
+  // Example workout data
+  final Map<String, Map<String, List<String>>> _workouts = {
+    'Renforcement': {
+      'Débutant': [
+        '5 x 5 Kettlebell Squats @ 60% 1RM',
+        '4 x 10 Dumbbell Press @ 50% 1RM',
+        '3 x 8 Rameur 250m, 1 min de repos'
+      ],
+      'Intermédiaire': [
+        '5 x 5 Overhead Press @ 60% 1RM',
+        '4 x 8 Bench Press @ 70% 1RM',
+        '4 x 8 Deadlifts @ 65% 1RM'
+      ],
+      'Avancé': [
+        '6 x 4 Deadlifts @ 70% 1RM',
+        '5 x 8 Wall Ball Shots @ 20kg',
+        '4 x 10 Pull-Ups'
+      ],
+      'Expert': [
+        '8 x 2 Snatch @ 80% 1RM',
+        '5 x 5 Overhead Squats @ 70% 1RM',
+        '6 x 10 Double-unders'
+      ],
+    },
+    'Hypertrophie': {
+      'Débutant': [
+        '3 x 12 Dumbbell Curls @ 40% 1RM',
+        '4 x 15 Push-Ups',
+        '3 x 12 Kettlebell Swings @ 30% 1RM'
+      ],
+      'Intermédiaire': [
+        '4 x 10 Dumbbell Bench Press @ 50% 1RM',
+        '4 x 12 Lunges with Kettlebell @ 40% 1RM',
+        '3 x 15 Box Jumps'
+      ],
+      'Avancé': [
+        '4 x 10 Bench Press @ 65% 1RM',
+        '5 x 12 Goblet Squats @ 50% 1RM',
+        '4 x 15 Wall Ball Sit-Ups'
+      ],
+      'Expert': [
+        '6 x 8 Clean and Jerks @ 75% 1RM',
+        '5 x 10 Handstand Push-Ups',
+        '4 x 20 Kettlebell Snatches @ 40% 1RM'
+      ],
+    },
+    'Force': {
+      'Débutant': [
+        '4 x 6 Deadlifts @ 65% 1RM',
+        '3 x 5 Dumbbell Bench Press @ 60% 1RM',
+        '3 x 8 Box Jumps'
+      ],
+      'Intermédiaire': [
+        '4 x 6 Overhead Squats @ 65% 1RM',
+        '4 x 5 Weighted Pull-Ups',
+        '3 x 10 Plyo Push-Ups'
+      ],
+      'Avancé': [
+        '5 x 5 Squats @ 75% 1RM',
+        '4 x 6 Pull-Ups Weighted',
+        '4 x 8 Rameur Sprints 300m'
+      ],
+      'Expert': [
+        '6 x 3 Front Squats @ 85% 1RM',
+        '5 x 4 Weighted Pull-Ups @ 70% 1RM',
+        '6 x 10 Burpee Box Jumps'
+      ],
+    },
+    'Puissance': {
+      'Débutant': [
+        '3 x 10 Kettlebell Clean and Press @ 50% 1RM',
+        '3 x 8 Dumbbell Push Press @ 50% 1RM',
+        '4 x 20 Corde à sauter'
+      ],
+      'Intermédiaire': [
+        '4 x 8 Power Snatch @ 60% 1RM',
+        '4 x 10 Wall Ball Shots',
+        '5 x 5 Broad Jumps'
+      ],
+      'Avancé': [
+        '5 x 5 Power Cleans @ 70% 1RM',
+        '4 x 10 Dumbbell Snatches @ 60% 1RM',
+        '4 x 15 Plyo Box Jumps'
+      ],
+      'Expert': [
+        '6 x 3 Push Jerks @ 80% 1RM',
+        '5 x 6 Weighted Box Jumps @ 70% 1RM',
+        '4 x 25 Double-unders'
+      ],
+    },
+    'Hybride': {
+      'Débutant': [
+        '4 x 8 Rameur 250m, 1 min de repos',
+        '4 x 8 Kettlebell Swings @ 40% 1RM',
+        '4 x 15 Air Squats'
+      ],
+      'Intermédiaire': [
+        '4 x 10 Front Squats @ 55% 1RM',
+        '4 x 12 Wall Ball Shots',
+        '4 x 10 Push-Ups'
+      ],
+      'Avancé': [
+        '5 x 6 Thrusters @ 65% 1RM',
+        '4 x 10 Kettlebell Clean and Press @ 50% 1RM',
+        '4 x 20 Corde à sauter'
+      ],
+      'Expert': [
+        '5 x 8 Deadlifts @ 75% 1RM',
+        '6 x 3 Muscle-Ups',
+        '4 x 12 Box Jumps'
+      ],
+    },
+  };
 
   void _calculatePercentages() {
-    if (_oneRepMax == null) return;
-
-    _percentageTable = {
-      '30%': _oneRepMax! * 0.30,
-      '35%': _oneRepMax! * 0.35,
-      '40%': _oneRepMax! * 0.40,
-      '45%': _oneRepMax! * 0.45,
-      '50%': _oneRepMax! * 0.50,
-      '55%': _oneRepMax! * 0.55,
-      '60%': _oneRepMax! * 0.60,
-      '65%': _oneRepMax! * 0.65,
-      '70%': _oneRepMax! * 0.70,
-      '75%': _oneRepMax! * 0.75,
-      '80%': _oneRepMax! * 0.80,
-      '85%': _oneRepMax! * 0.85,
-      '90%': _oneRepMax! * 0.90,
-      '95%': _oneRepMax! * 0.95,
-      '100%': _oneRepMax!,
-      '105%': _oneRepMax! * 1.05,
-      '110%': _oneRepMax! * 1.10,
-    };
+    if (_oneRepMax != null) {
+      _percentageTable = {
+        '30%': _oneRepMax! * 0.3,
+        '35%': _oneRepMax! * 0.35,
+        '40%': _oneRepMax! * 0.4,
+        '45%': _oneRepMax! * 0.45,
+        '50%': _oneRepMax! * 0.5,
+        '55%': _oneRepMax! * 0.55,
+        '60%': _oneRepMax! * 0.6,
+        '65%': _oneRepMax! * 0.65,
+        '70%': _oneRepMax! * 0.7,
+        '75%': _oneRepMax! * 0.75,
+        '80%': _oneRepMax! * 0.8,
+        '85%': _oneRepMax! * 0.85,
+        '90%': _oneRepMax! * 0.9,
+        '95%': _oneRepMax! * 0.95,
+        '100%': _oneRepMax!,
+        '105%': _oneRepMax! * 1.05,
+        '110%': _oneRepMax! * 1.1,
+      };
+    }
   }
 
-  String _generateStrengthWorkout(String time, String level) {
-    List<String> workouts = [
-      "5 rounds: 5x Deadlifts à 60% 1RM, 10x Push-ups",
-      "4 rounds: 8x Back Squats à 65% 1RM, 8x Pull-ups",
-      "5 rounds: 10x Deadlifts à 70% 1RM, 10x Barbell Rows",
-      "6 rounds: 12x Front Squats à 65% 1RM, 12x Bench Press"
-    ];
+  void _generateWorkout() {
+    if (_selectedTrainingType.isNotEmpty &&
+        _selectedLevel.isNotEmpty &&
+        _selectedTime.isNotEmpty) {
+      // Fetch the workout list based on the user's selection
+      List<String> availableWorkouts =
+          _workouts[_selectedTrainingType]![_selectedLevel]!;
 
-    return workouts[_random.nextInt(workouts.length)];
-  }
+      // Filter workouts based on equipment availability
+      List<String> filteredWorkouts = availableWorkouts.where((workout) {
+        for (String equipment in _selectedEquipment) {
+          if (workout.toLowerCase().contains(equipment.toLowerCase())) {
+            return true;
+          }
+        }
+        return false;
+      }).toList();
 
-  String _generateHypertrophyWorkout(String time, String level) {
-    List<String> workouts = [
-      "4 rounds: 12x Bench Press à 60% 1RM, 15x Dumbbell Flyes",
-      "5 rounds: 10x Squats à 65% 1RM, 12x Lunges",
-      "4 rounds: 8x Deadlifts à 70% 1RM, 10x Leg Press",
-      "5 rounds: 10x Barbell Rows à 65% 1RM, 12x Overhead Press"
-    ];
+      // If no workouts match the selected equipment, use the default list
+      if (filteredWorkouts.isEmpty) {
+        filteredWorkouts = availableWorkouts;
+      }
 
-    return workouts[_random.nextInt(workouts.length)];
-  }
+      // Shuffle and select workouts based on the duration
+      filteredWorkouts.shuffle();
+      int workoutCount;
+      switch (_selectedTime) {
+        case '10 minutes':
+          workoutCount = 1;
+          break;
+        case '20 minutes':
+          workoutCount = 2;
+          break;
+        case '30 minutes':
+          workoutCount = 3;
+          break;
+        case '45 minutes':
+          workoutCount = 4;
+          break;
+        default:
+          workoutCount = 2;
+      }
 
-  String _generatePowerWorkout(String time, String level) {
-    List<String> workouts = [
-      "5 rounds: 8x Push Press à 60% 1RM, 10x Box Jumps",
-      "4 rounds: 5x Power Cleans à 65% 1RM, 8x Broad Jumps",
-      "5 rounds: 6x Push Jerk à 70% 1RM, 10x Med Ball Slams",
-      "6 rounds: 4x Clean and Jerk à 75% 1RM, 10x Weighted Box Jumps"
-    ];
-
-    return workouts[_random.nextInt(workouts.length)];
-  }
-
-  String _generateEnduranceWorkout(String time, String level) {
-    List<String> workouts = [
-      "AMRAP 10: 10x Air Squats, 15x Sit-ups, 10x Burpees",
-      "AMRAP 20: 20x Kettlebell Swings, 15x Box Jumps, 20x Wall Balls",
-      "AMRAP 30: 30x Double-Unders, 20x Sit-ups, 15x Pull-ups",
-      "AMRAP 45: 40x Push-ups, 30x Air Squats, 20x Deadlifts à 50% 1RM"
-    ];
-
-    return workouts[_random.nextInt(workouts.length)];
+      setState(() {
+        _suggestions = filteredWorkouts.take(workoutCount).join('\n\n');
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Calculateur de CrossFit'),
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: _oneRepMaxController,
-                  decoration: const InputDecoration(
-                    labelText: "Entrez votre 1RM (kg)",
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      _oneRepMax = double.tryParse(value);
-                      _calculatePercentages();
-                    });
-                  },
+      appBar: AppBar(
+        title: const Text('Calculateur de CrossFit'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _oneRepMaxController,
+                decoration: const InputDecoration(
+                  labelText: "Entrez votre 1RM (kg)",
                 ),
-                const SizedBox(height: 10),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  setState(() {
+                    _oneRepMax = double.tryParse(value);
+                    _calculatePercentages();
+                  });
+                },
+              ),
+              const SizedBox(height: 10),
+              // Ajout de l'affichage des pourcentages
+              if (_percentageTable.isNotEmpty) ...[
                 const Text("Tableau des pourcentages de 1RM :"),
                 if (_oneRepMax != null)
-                  GridView.count(
-                    shrinkWrap:
-                        true, // Permet au GridView d'être contenu dans le ScrollView
-                    physics:
-                        const NeverScrollableScrollPhysics(), // Empêche le GridView de défiler indépendamment
-                    crossAxisCount: 3, // Définit 3 colonnes
-                    childAspectRatio: 10, // Ajuste la hauteur des cellules
-                    children: _percentageTable.entries.map((entry) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: Text(
-                          '${entry.key}: ${entry.value.toStringAsFixed(1)} kg',
-                          textAlign: TextAlign.center,
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Determine the number of columns based on screen width
+                      int columns = constraints.maxWidth > 600 ? 4 : 2;
+                      double childAspectRatio =
+                          constraints.maxWidth > 600 ? 4 : 3;
+
+                      return GridView.builder(
+                        shrinkWrap:
+                            true, // Permet au GridView d'être contenu dans le ScrollView
+                        physics:
+                            const NeverScrollableScrollPhysics(), // Empêche le GridView de défiler indépendamment
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount:
+                              columns, // Nombre de colonnes dynamiques
+                          crossAxisSpacing: 10.0,
+                          mainAxisSpacing: 10.0,
+                          childAspectRatio:
+                              childAspectRatio, // Ajuste la hauteur des cellules dynamiquement
                         ),
+                        itemCount: _percentageTable.length,
+                        itemBuilder: (context, index) {
+                          String key = _percentageTable.keys.elementAt(index);
+                          return Container(
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            child: Text(
+                              '$key: ${_percentageTable[key]!.toStringAsFixed(1)} kg',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          );
+                        },
                       );
-                    }).toList(),
+                    },
                   ),
                 const SizedBox(height: 20),
-                const Text("Sélectionnez le type d'entraînement :"),
-                DropdownButton<String>(
-                  value: _selectedTrainingType,
-                  items: <String>[
-                    'Renforcement',
-                    'Hypertrophie',
-                    'Force',
-                    'Puissance'
-                  ].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedTrainingType = newValue!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 10),
-                const Text("Sélectionnez la durée de l'entraînement :"),
-                DropdownButton<String>(
-                  value: _selectedTime,
-                  items: <String>[
-                    '10 minutes',
-                    '20 minutes',
-                    '30 minutes',
-                    '45 minutes'
-                  ].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedTime = newValue!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 10),
-                const Text("Sélectionnez le niveau :"),
-                DropdownButton<String>(
-                  value: _selectedLevel,
-                  items: <String>['Débutant', 'Avancé', 'Expert']
-                      .map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedLevel = newValue!;
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _generateWorkout,
-                  child: const Text("Générer la séance"),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  _suggestions,
-                  style: const TextStyle(fontSize: 16),
-                ),
               ],
-            ),
+              const Text("Sélectionnez votre matériel disponible :"),
+              Wrap(
+                spacing: 8.0,
+                children: _equipmentOptions.map((String equipment) {
+                  return FilterChip(
+                    label: Text(equipment),
+                    selected: _selectedEquipment.contains(equipment),
+                    onSelected: (bool selected) {
+                      setState(() {
+                        if (selected) {
+                          _selectedEquipment.add(equipment);
+                        } else {
+                          _selectedEquipment.removeWhere((String name) {
+                            return name == equipment;
+                          });
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+              const Text("Sélectionnez la durée de l'entraînement :"),
+              DropdownButton<String>(
+                value: _selectedTime,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedTime = newValue!;
+                  });
+                },
+                items: <String>[
+                  '10 minutes',
+                  '20 minutes',
+                  '30 minutes',
+                  '45 minutes'
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+              const Text("Sélectionnez le niveau :"),
+              DropdownButton<String>(
+                value: _selectedLevel,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedLevel = newValue!;
+                  });
+                },
+                items: <String>['Débutant', 'Intermédiaire', 'Avancé', 'Expert']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+              const Text("Sélectionnez le type d'entraînement :"),
+              DropdownButton<String>(
+                value: _selectedTrainingType,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedTrainingType = newValue!;
+                  });
+                },
+                items: <String>[
+                  'Renforcement',
+                  'Hypertrophie',
+                  'Force',
+                  'Puissance',
+                  'Hybride'
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _generateWorkout,
+                child: const Text('Générer la séance'),
+              ),
+              const SizedBox(height: 20),
+              if (_suggestions.isNotEmpty) ...[
+                const Text(
+                  "Séance suggérée :",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Text(_suggestions, style: const TextStyle(fontSize: 16)),
+              ],
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
