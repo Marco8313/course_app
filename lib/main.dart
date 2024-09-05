@@ -462,9 +462,9 @@ class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
                   LayoutBuilder(
                     builder: (context, constraints) {
                       // Determine the number of columns based on screen width
-                      int columns = constraints.maxWidth > 600 ? 4 : 2;
+                      int columns = constraints.maxWidth > 600 ? 4 : 3;
                       double childAspectRatio =
-                          constraints.maxWidth > 600 ? 4 : 3;
+                          constraints.maxWidth > 600 ? 4 : 4;
 
                       return GridView.builder(
                         shrinkWrap:
