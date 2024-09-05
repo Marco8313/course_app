@@ -34406,10 +34406,8 @@ $0(){var s=this.a,r=s.e=A.wg(this.b)
 if(r!=null)s.f=A.an(["30%",r*0.3,"35%",r*0.35,"40%",r*0.4,"45%",r*0.45,"50%",r*0.5,"55%",r*0.55,"60%",r*0.6,"65%",r*0.65,"70%",r*0.7,"75%",r*0.75,"80%",r*0.8,"85%",r*0.85,"90%",r*0.9,"95%",r*0.95,"100%",r,"105%",r*1.05,"110%",r*1.1],t.N,t.i)},
 $S:0}
 A.a8w.prototype={
-$2(a,b){var s,r=null,q=b.b>600,p=q?4:2,o=q?4:3
-q=this.a
-s=q.f.a
-return new A.p8(new A.a4P(p,10,10,o),new A.a4L(new A.a8t(q),s,!0,!0,!0,r),r,B.aA,!1,r,r,B.GO,!0,r,s,B.ag,B.w2,r,B.a0,B.ah,r)},
+$2(a,b){var s=null,r=b.b>600?4:3,q=this.a,p=q.f.a
+return new A.p8(new A.a4P(r,10,10,4),new A.a4L(new A.a8t(q),p,!0,!0,!0,s),s,B.aA,!1,s,s,B.GO,!0,s,p,B.ag,B.w2,s,B.a0,B.ah,s)},
 $S:261}
 A.a8t.prototype={
 $2(a,b){var s,r=null,q=this.a,p=q.f,o=new A.aW(p,A.j(p).i("aW<1>")).ci(0,b)
