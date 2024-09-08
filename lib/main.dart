@@ -29,52 +29,86 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(
-          // Utilisation du Center pour centrer le texte
-          child: Text(
-            'Bienvenue dans l\'application\nde l\'athlète du quotidien',
-            textAlign: TextAlign.center, // Centre le texte dans le widget Text
-          ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
         ),
+        title: const Text(
+          'Bienvenue dans l\'application de l\'athlète du quotidien',
+          style: TextStyle(color: Color.fromARGB(172, 255, 255, 255)),
+        ),
+        backgroundColor: const Color.fromARGB(255, 47, 48, 45),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const RunningCalculatorPage()),
-                );
-              },
-              child: const Text('Calculateur de Course'),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.black,
+              ),
+              child: Center(
+                child: Text(
+                  'Menu',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
+            ListTile(
+              leading: const Icon(Icons.directions_run, color: Colors.blue),
+              title: const Text('Course à pied'),
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const CrossFitCalculatorPage()),
+                    builder: (context) => const RunningCalculatorPage(),
+                  ),
                 );
               },
-              child: const Text('Calculateur de CrossFit'),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
+            ListTile(
+              leading: const Icon(Icons.fitness_center, color: Colors.red),
+              title: const Text('CrossFit'),
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const HyroxCalculatorPage()),
+                    builder: (context) => const CrossFitCalculatorPage(),
+                  ),
                 );
               },
-              child: const Text('Calculateur Hyrox'),
+            ),
+            ListTile(
+              leading: Image.asset(
+                'assets/images/icon_hyrox.png',
+                width: 24,
+                height: 24,
+              ),
+              title: const Text('Hyrox'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HyroxCalculatorPage(),
+                  ),
+                );
+              },
             ),
           ],
         ),
+      ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/image_accueil.png', // Chemin de l'image
+              fit: BoxFit.cover, // L'image couvre toute la page
+            ),
+          ),
+          // Vous pouvez ajouter d'autres éléments par-dessus l'image ici
+        ],
       ),
     );
   }

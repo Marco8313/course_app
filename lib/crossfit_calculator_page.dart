@@ -218,174 +218,218 @@ class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calculateur de CrossFit'),
+    // CrossFit theme definition
+    ThemeData crossfitTheme = ThemeData(
+      primaryColor: Color(0xFF1C1C1C), // Dark background color
+      colorScheme: ColorScheme.dark().copyWith(
+        secondary: Color(0xFFFF3B30), // Rouge vif pour les accents
+        primary: Color(0xFF1C1C1C), // Noir pour la couleur primaire
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: _oneRepMaxController,
-                decoration: const InputDecoration(
-                  labelText: "Entrez votre 1RM (kg)",
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  setState(() {
-                    _oneRepMax = double.tryParse(value);
-                    _calculatePercentages();
-                  });
-                },
-              ),
-              const SizedBox(height: 10),
-              // Ajout de l'affichage des pourcentages
-              if (_percentageTable.isNotEmpty) ...[
-                const Text("Tableau des pourcentages de 1RM :"),
-                if (_oneRepMax != null)
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      // Determine the number of columns based on screen width
-                      int columns = constraints.maxWidth > 600 ? 4 : 3;
-                      double childAspectRatio =
-                          constraints.maxWidth > 600 ? 4 : 4;
-
-                      return GridView.builder(
-                        shrinkWrap:
-                            true, // Permet au GridView d'être contenu dans le ScrollView
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Empêche le GridView de défiler indépendamment
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount:
-                              columns, // Nombre de colonnes dynamiques
-                          crossAxisSpacing: 4.0,
-                          mainAxisSpacing: 4.0,
-                          childAspectRatio:
-                              childAspectRatio, // Ajuste la hauteur des cellules dynamiquement
-                        ),
-                        itemCount: _percentageTable.length,
-                        itemBuilder: (context, index) {
-                          String key = _percentageTable.keys.elementAt(index);
-                          return Container(
-                            padding: const EdgeInsets.all(5.0),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            child: Text(
-                              '$key: ${_percentageTable[key]!.toStringAsFixed(1)} kg',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                const SizedBox(height: 20),
-              ],
-              const Text("Sélectionnez votre matériel disponible :"),
-              Wrap(
-                spacing: 8.0,
-                children: _equipmentOptions.map((String equipment) {
-                  return FilterChip(
-                    label: Text(equipment),
-                    selected: _selectedEquipment.contains(equipment),
-                    onSelected: (bool selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedEquipment.add(equipment);
-                        } else {
-                          _selectedEquipment.removeWhere((String name) {
-                            return name == equipment;
-                          });
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 10),
-              const Text("Sélectionnez la durée de l'entraînement :"),
-              DropdownButton<String>(
-                value: _selectedTime,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedTime = newValue!;
-                  });
-                },
-                items: <String>[
-                  '10 minutes',
-                  '20 minutes',
-                  '30 minutes',
-                  '45 minutes'
-                ].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 10),
-              const Text("Sélectionnez le niveau :"),
-              DropdownButton<String>(
-                value: _selectedLevel,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedLevel = newValue!;
-                  });
-                },
-                items: <String>['Débutant', 'Intermédiaire', 'Avancé', 'Expert']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 10),
-              const Text("Sélectionnez le type d'entraînement :"),
-              DropdownButton<String>(
-                value: _selectedTrainingType,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedTrainingType = newValue!;
-                  });
-                },
-                items: <String>[
-                  'Renforcement',
-                  'Hypertrophie',
-                  'Force',
-                  'Puissance',
-                  'Hybride'
-                ].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _generateWorkout,
-                child: const Text('Générer la séance'),
-              ),
-              const SizedBox(height: 20),
-              if (_suggestions.isNotEmpty) ...[
-                const Text(
-                  "Séance suggérée :",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                Text(_suggestions, style: const TextStyle(fontSize: 16)),
-              ],
-            ],
-          ),
+      scaffoldBackgroundColor: Color(0xFF1C1C1C),
+      textTheme: TextTheme(
+        bodyLarge: TextStyle(color: Colors.white),
+        bodyMedium: TextStyle(color: Colors.white70),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Color(0xFFFF3B30), // Red for buttons
+          foregroundColor: Colors.white, // White text on buttons
         ),
       ),
     );
+
+    return Theme(
+        data: crossfitTheme, // Apply the CrossFit theme here
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back,
+                  color: Color.fromARGB(255, 255, 0, 0)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            title: Row(
+              children: [
+                const Icon(Icons.fitness_center,
+                    color: Colors.red), // Icon next to the title
+                const SizedBox(
+                    width: 10), // Spacing between the icon and the text
+                const Text('Calculateur de CrossFit'),
+              ],
+            ),
+          ), // Close the AppBar here
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: _oneRepMaxController,
+                    decoration: const InputDecoration(
+                      labelText: "Entrez votre 1RM (kg)",
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        _oneRepMax = double.tryParse(value);
+                        _calculatePercentages();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  // Ajout de l'affichage des pourcentages
+                  if (_percentageTable.isNotEmpty) ...[
+                    const Text("Tableau des pourcentages de 1RM :"),
+                    if (_oneRepMax != null)
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Determine the number of columns based on screen width
+                          int columns = constraints.maxWidth > 600 ? 4 : 3;
+                          double childAspectRatio =
+                              constraints.maxWidth > 600 ? 4 : 4;
+
+                          return GridView.builder(
+                            shrinkWrap:
+                                true, // Permet au GridView d'être contenu dans le ScrollView
+                            physics:
+                                const NeverScrollableScrollPhysics(), // Empêche le GridView de défiler indépendamment
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount:
+                                  columns, // Nombre de colonnes dynamiques
+                              crossAxisSpacing: 4.0,
+                              mainAxisSpacing: 4.0,
+                              childAspectRatio:
+                                  childAspectRatio, // Ajuste la hauteur des cellules dynamiquement
+                            ),
+                            itemCount: _percentageTable.length,
+                            itemBuilder: (context, index) {
+                              String key =
+                                  _percentageTable.keys.elementAt(index);
+                              return Container(
+                                padding: const EdgeInsets.all(5.0),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Text(
+                                  '$key: ${_percentageTable[key]!.toStringAsFixed(1)} kg',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    const SizedBox(height: 20),
+                  ],
+                  const Text("Sélectionnez votre matériel disponible :"),
+                  Wrap(
+                    spacing: 8.0,
+                    children: _equipmentOptions.map((String equipment) {
+                      return FilterChip(
+                        label: Text(equipment),
+                        selected: _selectedEquipment.contains(equipment),
+                        onSelected: (bool selected) {
+                          setState(() {
+                            if (selected) {
+                              _selectedEquipment.add(equipment);
+                            } else {
+                              _selectedEquipment.removeWhere((String name) {
+                                return name == equipment;
+                              });
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text("Sélectionnez la durée de l'entraînement :"),
+                  DropdownButton<String>(
+                    value: _selectedTime,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedTime = newValue!;
+                      });
+                    },
+                    items: <String>[
+                      '10 minutes',
+                      '20 minutes',
+                      '30 minutes',
+                      '45 minutes'
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text("Sélectionnez le niveau :"),
+                  DropdownButton<String>(
+                    value: _selectedLevel,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedLevel = newValue!;
+                      });
+                    },
+                    items: <String>[
+                      'Débutant',
+                      'Intermédiaire',
+                      'Avancé',
+                      'Expert'
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text("Sélectionnez le type d'entraînement :"),
+                  DropdownButton<String>(
+                    value: _selectedTrainingType,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedTrainingType = newValue!;
+                      });
+                    },
+                    items: <String>[
+                      'Renforcement',
+                      'Hypertrophie',
+                      'Force',
+                      'Puissance',
+                      'Hybride'
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _generateWorkout,
+                    child: const Text('Générer la séance'),
+                  ),
+                  const SizedBox(height: 20),
+                  if (_suggestions.isNotEmpty) ...[
+                    const Text(
+                      "Séance suggérée :",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(_suggestions, style: const TextStyle(fontSize: 16)),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ));
   }
 }

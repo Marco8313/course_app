@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class HyroxCalculatorPage extends StatefulWidget {
-  const HyroxCalculatorPage({Key? key}) : super(key: key);
+  const HyroxCalculatorPage({super.key});
 
   @override
   _HyroxCalculatorPageState createState() => _HyroxCalculatorPageState();
@@ -83,10 +83,10 @@ class _HyroxCalculatorPageState extends State<HyroxCalculatorPage> {
       theme: ThemeData(
         primaryColor: Colors.black, // Couleur de fond de l'AppBar
         colorScheme: ColorScheme.fromSwatch().copyWith(
-          secondary: Color(0xFFFFC700), // Jaune Hyrox
+          secondary: const Color(0xFFFFC700), // Jaune Hyrox
         ),
         scaffoldBackgroundColor: Colors.black, // Fond noir
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           headlineLarge: TextStyle(
               color: Color(0xFFFFC700),
               fontSize: 24,
@@ -102,8 +102,18 @@ class _HyroxCalculatorPageState extends State<HyroxCalculatorPage> {
               Navigator.of(context).pop();
             },
           ),
-          title: const Text('Calculateur Hyrox',
-              style: TextStyle(color: Colors.white)),
+          title: Row(
+            children: [
+              Image.asset(
+                'assets/images/icon_hyrox.png',
+                width: 24,
+                height: 24,
+              ), // Icône à côté du titre
+              const SizedBox(width: 10), // Espacement entre l'icône et le texte
+              const Text('Calculateur Hyrox',
+                  style: TextStyle(color: Colors.white)),
+            ],
+          ),
           backgroundColor: Colors.black,
         ),
         body: Padding(
@@ -162,7 +172,7 @@ class _HyroxCalculatorPageState extends State<HyroxCalculatorPage> {
               ElevatedButton(
                 onPressed: _generateWorkout,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFFFC700), // Jaune Hyrox
+                  backgroundColor: const Color(0xFFFFC700), // Jaune Hyrox
                   foregroundColor: Colors.black, // Texte noir
                 ),
                 child: const Text('Générer la séance'),
