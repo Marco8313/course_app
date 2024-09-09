@@ -93,86 +93,120 @@ class _RunningCalculatorPageState extends State<RunningCalculatorPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        theme: ThemeData(
-          scaffoldBackgroundColor:
-              const Color(0xFFE0F7FA), // Bleu ciel clair pour le fond
-          textTheme: TextTheme(
-            bodyLarge: TextStyle(color: Colors.black),
-            bodyMedium: TextStyle(color: Colors.black87),
-          ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF007AFF), // Bleu foncé pour les boutons
-              foregroundColor: Colors.white, // Texte en blanc sur les boutons
-            ),
+      theme: ThemeData(
+        scaffoldBackgroundColor:
+            const Color(0xFFE0F7FA), // Default background color
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black),
+          bodyMedium: TextStyle(color: Colors.black87),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF007AFF), // Blue for buttons
+            foregroundColor: Colors.white, // White text on buttons
           ),
         ),
-        home: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFF007AFF)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            title: Row(
-              children: [
-                const Icon(Icons.directions_run,
-                    color: Colors.blue), // Icône à côté du titre
-                const SizedBox(
-                    width: 10), // Espacement entre l'icône et le texte
-                const Text('Calculateur de Course'),
-              ],
-            ),
-            backgroundColor: const Color(0xFFE0F7FA),
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF007AFF)),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
-          body: SingleChildScrollView(
-            // Ajout d'un SingleChildScrollView
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                TextField(
-                  controller: _vitesseController,
-                  decoration: const InputDecoration(
-                    labelText: 'Entrez votre vitesse (km/h)',
-                  ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _convertirVitesseEnAllure,
-                  child: const Text('Convertir Vitesse en Allure'),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _allureController,
-                  decoration: const InputDecoration(
-                    labelText: 'Entrez votre allure (min.km)',
-                  ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _convertirAllureEnVitesse,
-                  child: const Text('Convertir Allure en Vitesse'),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _calculerPourcentagesvitesse,
-                  child: const Text(
-                      'Calculer les vitesses selon les pourcentages'),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  _resultatConversion,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
+          title: const Row(
+            children: [
+              Icon(Icons.directions_run,
+                  color: Colors.blue), // Icon next to the title
+              SizedBox(width: 10), // Spacing between icon and text
+              Text('Calculateur de Course'),
+            ],
           ),
-        ));
+          backgroundColor: const Color(0xFFE0F7FA),
+        ),
+        body: Stack(
+          children: [
+            Opacity(
+              opacity: 0.9, // Adjust opacity to create a watermark effect
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/running_background.png"),
+                    fit: BoxFit.cover, // Ensure the image covers the whole page
+                  ),
+                ),
+              ),
+            ),
+            // Foreground content
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  TextField(
+                    controller: _vitesseController,
+                    decoration: const InputDecoration(
+                      labelText: 'Entrez votre vitesse (km/h)',
+                      filled: true,
+                      fillColor: Colors.white70, // Ensure readability
+                    ),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _convertirVitesseEnAllure,
+                    child: const Text('Convertir Vitesse en Allure'),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _allureController,
+                    decoration: const InputDecoration(
+                      labelText: 'Entrez votre allure (min.km)',
+                      filled: true,
+                      fillColor: Colors.white70, // Ensure readability
+                    ),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _convertirAllureEnVitesse,
+                    child: const Text('Convertir Allure en Vitesse'),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _calculerPourcentagesvitesse,
+                    child: const Text(
+                        'Calculer les vitesses selon les pourcentages'),
+                  ),
+                  const SizedBox(height: 20),
+                  // Displaying the result with a semi-transparent background
+                  Container(
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color:
+                          Colors.white70, // Semi-transparent white background
+                      borderRadius:
+                          BorderRadius.circular(8.0), // Rounded corners
+                    ),
+                    child: Text(
+                      _resultatConversion.isNotEmpty
+                          ? _resultatConversion
+                          : 'Aucun résultat pour le moment.',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black, // Text color for results
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

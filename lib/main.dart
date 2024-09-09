@@ -33,8 +33,9 @@ class HomePage extends StatelessWidget {
           color: Colors.white,
         ),
         title: const Text(
-          'Bienvenue dans l\'application de l\'athlète du quotidien',
+          'L\'application de l\'athlète\n' 'du quotidien',
           style: TextStyle(color: Color.fromARGB(172, 255, 255, 255)),
+          textAlign: TextAlign.center,
         ),
         backgroundColor: const Color.fromARGB(255, 47, 48, 45),
       ),

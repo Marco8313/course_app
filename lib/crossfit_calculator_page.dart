@@ -119,28 +119,6 @@ class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
         '4 x 25 Double-unders'
       ],
     },
-    'Hybride': {
-      'Débutant': [
-        '4 x 8 Rameur 250m, 1 min de repos',
-        '4 x 8 Kettlebell Swings @ 40% 1RM',
-        '4 x 15 Air Squats'
-      ],
-      'Intermédiaire': [
-        '4 x 10 Front Squats @ 55% 1RM',
-        '4 x 12 Wall Ball Shots',
-        '4 x 10 Push-Ups'
-      ],
-      'Avancé': [
-        '5 x 6 Thrusters @ 65% 1RM',
-        '4 x 10 Kettlebell Clean and Press @ 50% 1RM',
-        '4 x 20 Corde à sauter'
-      ],
-      'Expert': [
-        '5 x 8 Deadlifts @ 75% 1RM',
-        '6 x 3 Muscle-Ups',
-        '4 x 12 Box Jumps'
-      ],
-    },
   };
 
   void _calculatePercentages() {
@@ -220,19 +198,19 @@ class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
   Widget build(BuildContext context) {
     // CrossFit theme definition
     ThemeData crossfitTheme = ThemeData(
-      primaryColor: Color(0xFF1C1C1C), // Dark background color
-      colorScheme: ColorScheme.dark().copyWith(
+      primaryColor: const Color(0xFF1C1C1C), // Dark background color
+      colorScheme: const ColorScheme.dark().copyWith(
         secondary: Color(0xFFFF3B30), // Rouge vif pour les accents
         primary: Color(0xFF1C1C1C), // Noir pour la couleur primaire
       ),
-      scaffoldBackgroundColor: Color(0xFF1C1C1C),
-      textTheme: TextTheme(
+      scaffoldBackgroundColor: const Color(0xFF1C1C1C),
+      textTheme: const TextTheme(
         bodyLarge: TextStyle(color: Colors.white),
         bodyMedium: TextStyle(color: Colors.white70),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFFFF3B30), // Red for buttons
+          backgroundColor: const Color(0xFFFF3B30), // Red for buttons
           foregroundColor: Colors.white, // White text on buttons
         ),
       ),
@@ -249,13 +227,12 @@ class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
                 Navigator.of(context).pop();
               },
             ),
-            title: Row(
+            title: const Row(
               children: [
-                const Icon(Icons.fitness_center,
+                Icon(Icons.fitness_center,
                     color: Colors.red), // Icon next to the title
-                const SizedBox(
-                    width: 10), // Spacing between the icon and the text
-                const Text('Calculateur de CrossFit'),
+                SizedBox(width: 10), // Spacing between the icon and the text
+                Text('Calculateur de CrossFit'),
               ],
             ),
           ), // Close the AppBar here
@@ -311,7 +288,7 @@ class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
                               return Container(
                                 padding: const EdgeInsets.all(5.0),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
+                                  border: Border.all(color: Colors.red),
                                   borderRadius: BorderRadius.circular(5.0),
                                 ),
                                 child: Text(
@@ -344,6 +321,21 @@ class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
                             }
                           });
                         },
+                        selectedColor: Colors
+                            .red, // Customize the color of the selected chip
+                        backgroundColor:
+                            Colors.grey[700], // Color when not selected
+                        labelStyle:
+                            TextStyle(color: Colors.white), // Text color
+                        shape: StadiumBorder(
+                          side: BorderSide(
+                            color: _selectedEquipment.contains(equipment)
+                                ? const Color.fromARGB(255, 54, 244,
+                                    127) // Border color when selected
+                                : const Color.fromARGB(255, 250, 2,
+                                    2), // Border color when not selected
+                          ),
+                        ),
                       );
                     }).toList(),
                   ),
@@ -402,8 +394,7 @@ class _CrossFitCalculatorPageState extends State<CrossFitCalculatorPage> {
                       'Renforcement',
                       'Hypertrophie',
                       'Force',
-                      'Puissance',
-                      'Hybride'
+                      'Puissance'
                     ].map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
